@@ -1,0 +1,629 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StudySpace</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f4f7fb;color:#1e293b}
+header{background:#beaf6a;color:rgb(25, 26, 2);padding:18px 8%;display:flex;
+justify-content:space-between;align-items:center}
+.logo{font-size:23px;font-weight:bold}
+nav a{color:white;text-decoration:none;margin-left:20px}
+.hero,.courseHead{text-align:center;background:#f5f2f4;padding:55px 20px}
+.hero h1{font-size:40px;color:#545d7c}
+.hero p,.courseHead p{margin:12px;color:#648b6c}
+.btn{background:#ebcc9f;color:rgb(54, 128, 122);border:0;padding:11px 18px;
+border-radius:8px;cursor:pointer;font-weight:bold}
+.btn:hover{background:#1dd845}
+section{padding:40px 8%}
+h2{text-align:center;color:#172554;margin-bottom:22px}
+.cards,.buyCards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card,.topic,.course,.box,.module,.buyCard,form{
+background:white;padding:20px;border-radius:12px;
+box-shadow:0 3px 12px #0001}
+.card{text-align:center;border-top:4px solid #2563eb}
+.card h3,.topic h3,.buyCard h3{color:#172554;margin-bottom:9px}
+.card p,.topic p,.course p,.buyCard p{color:#64748b;
+line-height:1.5;margin-bottom:13px}
+.topic{border-left:4px solid #2563eb}
+.topic img{width:100%;height:120px;object-fit:cover;border-radius:8px}
+.topic a{color:#2563eb;text-decoration:none;font-weight:bold}
+.course{text-align:center;border:2px solid #93c5fd}
+form{max-width:600px;margin:auto}
+input,textarea,select{width:100%;padding:11px;margin:6px 0;
+border:1px solid #cbd5e1;border-radius:7px;font-size:14px}
+textarea{height:90px}
+select{background:white}
+footer{background:#172554;color:white;text-align:center;padding:20px}
+#coursePage{display:none}
+.container{max-width:1000px;width:85%;margin:30px auto}
+.progress{display:flex;gap:25px;align-items:center}
+.pie{width:130px;height:130px;border-radius:50%;
+background:conic-gradient(#2563eb 67%,#dbeafe 0);
+display:grid;place-items:center}
+.pie span{background:white;border-radius:50%;width:85px;height:85px;
+display:grid;place-items:center;color:#2563eb;font-size:23px;font-weight:bold}
+.box{margin-top:25px}
+.info{text-align:center;color:#64748b;margin-bottom:18px}
+
+/* BAR GRAPH */
+.bars{height:260px;background:#f8fafc;border-bottom:2px solid #cbd5e1;
+display:flex;justify-content:space-around;align-items:end;padding:20px}
+.barbox{text-align:center;width:17%}
+.bar{height:0;background:#2563eb;border-radius:7px 7px 0 0;
+cursor:pointer;transition:.8s}
+.bar:hover,.bar.active{background:#172554}
+.bar span{position:relative;top:-22px;font-size:12px;font-weight:bold}
+.label{font-size:12px;margin-top:8px;color:#475569}
+.selected{margin-top:15px;text-align:center;background:#eff6ff;
+padding:12px;border-radius:8px;color:#1d4ed8}
+
+/* LINE GRAPH */
+.chart{width:100%;height:280px;background:#f8fafc;border:1px solid #e2e8f0}
+.grid{stroke:#dbe3ee}
+.line{fill:none;stroke:#2563eb;stroke-width:4}
+.point{fill:white;stroke:#2563eb;stroke-width:4;cursor:pointer}
+.point.active{fill:#2563eb}
+.chartText{font-size:12px;fill:#64748b}
+.chartValue{font-size:13px;fill:#172554;font-weight:bold}
+
+/* COURSES */
+.buyCard{text-align:center;border-top:4px solid #2563eb}
+.price{font-size:23px;color:#2563eb;font-weight:bold;margin:10px}
+.tag{display:inline-block;background:#dbeafe;color:#1d4ed8;
+padding:5px 9px;border-radius:15px;font-size:12px;margin-bottom:10px}
+
+.module{margin:10px 0;display:flex;justify-content:space-between;
+align-items:center;border-left:4px solid #2563eb}
+.status{padding:6px 11px;border-radius:20px;font-size:12px;font-weight:bold}
+.done{background:#dcfce7;color:#166534}
+.start{background:#dbeafe;color:#1d4ed8}
+.pending{background:#f1f5f9;color:#64748b}
+
+/* POPUPS */
+.popup{display:none;position:fixed;top:50%;left:50%;
+transform:translate(-50%,-50%);background:white;padding:27px;
+width:330px;text-align:center;border-radius:14px;
+box-shadow:0 10px 40px #0005;z-index:10}
+.popup h3{color:#2563eb;margin-bottom:10px}
+.popup p{color:#64748b;line-height:1.5;margin-bottom:15px}
+.popup form{text-align:left;box-shadow:none;padding:0}
+.cancel{background:#64748b;margin-top:7px}
+.cancel:hover{background:#475569}
+
+@media(max-width:750px){
+.cards,.buyCards{grid-template-columns:1fr}
+header{flex-direction:column;gap:12px}
+nav a{margin:0 7px}
+.progress{flex-direction:column;text-align:center}
+.module{flex-direction:column;align-items:flex-start;gap:8px}
+.hero h1{font-size:30px}
+.bars{height:220px;padding:15px 5px}
+.bar{width:35px}
+.barbox{width:19%}
+.chart{height:230px}
+.container{width:94%}
+.popup{width:90%}
+}
+
+/* HOME PAGE */
+</style>
+</head>
+
+<body>
+
+<div id="homePage">
+
+<header>
+<div class="logo">📚 StudySpace</div>
+<nav>
+<a href="#home">Home</a>
+<a href="#topics">Topics</a>
+<a href="#course">Course</a>
+<a href="#contact">Contact</a>
+</nav>
+</header>
+
+<div class="hero" id="home">
+<h1>Learn. Practice. Build. Grow.</h1>
+<p>A simple learning space for Computer Science students.</p>
+<button class="btn" onclick="openCourse()">Go to Course →</button>
+</div>
+
+<section>
+<h2>What You Can Do</h2>
+<div class="cards">
+
+<div class="card">
+<h3>📖 Learn</h3>
+<p>Understand Computer Science concepts easily.</p>
+<button class="btn"
+onclick="pop('Learn','Start exploring your study materials!')">
+Start Learning</button>
+</div>
+
+<div class="card">
+<h3>🛠️ Build</h3>
+<p>Create websites and programming projects.</p>
+<button class="btn"
+onclick="pop('Build','Time to build something amazing!')">
+Start Building</button>
+</div>
+
+<div class="card">
+<h3>🚀 Grow</h3>
+<p>Track your progress and improve your skills.</p>
+<button class="btn" onclick="openCourse()">See Progress</button>
+</div>
+
+</div>
+</section>
+
+<section id="topics">
+<h2>📚 Key Topics</h2>
+
+<div class="cards">
+
+<div class="topic">
+<img src="https://images.unsplash.com/photo-1627398242454-45a1465c2479?auto=format&fit=crop&w=600&q=80">
+<h3>HTML Basics</h3>
+<p>Learn webpage structure and elements.</p>
+<a target="_blank"
+href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Structuring_content">
+Study HTML →</a>
+</div>
+
+<div class="topic">
+<img src="https://images.unsplash.com/photo-1523437113738-bbd3cc89fb19?auto=format&fit=crop&w=600&q=80">
+<h3>CSS Fundamentals</h3>
+<p>Learn styling, layouts and design.</p>
+<a target="_blank"
+href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Styling_basics">
+Study CSS →</a>
+</div>
+
+<div class="topic">
+<img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80">
+<h3>JavaScript</h3>
+<p>Learn programming and interactions.</p>
+<a target="_blank"
+href="https://developer.mozilla.org/en-US/docs/Learn_web_development/Core/Scripting">
+Study JavaScript →</a>
+</div>
+
+</div>
+</section>
+
+<section id="course">
+<h2>🎓 Your Course</h2>
+<div class="course">
+<h3>Computer Science Fundamentals</h3>
+<p>Follow modules and track your progress.</p>
+<button class="btn" onclick="openCourse()">Go to Course →</button>
+</div>
+</section>
+
+<section>
+<h2>🛒 Recommended Courses</h2>
+
+<div class="buyCards">
+
+<div class="buyCard">
+<span class="tag">POPULAR</span>
+<h3>Full Stack Web Development</h3>
+<p>HTML, CSS, JavaScript and backend basics.</p>
+<div class="price">₹1,999</div>
+<button class="btn"
+onclick="buy('Full Stack Web Development','₹1,999')">
+Buy Course</button>
+</div>
+
+<div class="buyCard">
+<span class="tag">BEGINNER</span>
+<h3>Python for Beginners</h3>
+<p>Learn Python programming from scratch.</p>
+<div class="price">₹999</div>
+<button class="btn"
+onclick="buy('Python for Beginners','₹999')">
+Buy Course</button>
+</div>
+
+<div class="buyCard">
+<span class="tag">CAREER</span>
+<h3>Data Science Foundations</h3>
+<p>Python, data analysis and statistics.</p>
+<div class="price">₹1,499</div>
+<button class="btn"
+onclick="buy('Data Science Foundations','₹1,499')">
+Buy Course</button>
+</div>
+
+</div>
+</section>
+
+<section id="contact">
+<h2>💬 Contact Us</h2>
+<form onsubmit="send(event)">
+<input placeholder="Your Name" required>
+<input type="email" placeholder="Your Email" required>
+<textarea placeholder="Write your message..." required></textarea>
+<button class="btn">Send Message</button>
+</form>
+</section>
+
+<footer>© 2026 StudySpace | Keep Learning 📚</footer>
+</div>
+
+
+<!-- COURSE PAGE -->
+
+<div id="coursePage">
+
+<header>
+<div class="logo">📚 StudySpace</div>
+<a href="#" onclick="home();return false" style="color:white">
+← Back Home</a>
+</header>
+
+<div class="courseHead">
+<h1>Computer Science Fundamentals</h1>
+<p>Learn the foundations of modern web development.</p>
+</div>
+
+<div class="container">
+
+<div class="box progress">
+<div class="pie"><span>67%</span></div>
+<div>
+<h2 style="text-align:left">Your Course Progress</h2>
+<p>2 modules completed and JavaScript is in progress.</p>
+<b>2 of 5 modules completed</b>
+</div>
+</div>
+
+<!-- BAR GRAPH -->
+
+<div class="box">
+<h2>📊 Module Progress</h2>
+<p class="info">Click a bar to see module details.</p>
+
+<div class="bars">
+
+<div class="barbox">
+<div class="bar" id="b1" onclick="bar(1)">
+<span>100%</span></div>
+<div class="label">HTML</div>
+</div>
+
+<div class="barbox">
+<div class="bar" id="b2" onclick="bar(2)">
+<span>100%</span></div>
+<div class="label">CSS</div>
+</div>
+
+<div class="barbox">
+<div class="bar" id="b3" onclick="bar(3)">
+<span>50%</span></div>
+<div class="label">JavaScript</div>
+</div>
+
+<div class="barbox">
+<div class="bar" id="b4" onclick="bar(4)">
+<span>0%</span></div>
+<div class="label">Responsive</div>
+</div>
+
+<div class="barbox">
+<div class="bar" id="b5" onclick="bar(5)">
+<span>0%</span></div>
+<div class="label">Accessibility</div>
+</div>
+
+</div>
+
+<div class="selected" id="barText">
+Click a bar 👆
+</div>
+</div>
+
+
+<!-- LINE GRAPH -->
+
+<div class="box">
+<h2>📈 Weekly Progress</h2>
+<p class="info">Click a point to explore your weekly progress.</p>
+
+<svg class="chart" viewBox="0 0 700 280">
+
+<line x1="50" y1="30" x2="50" y2="225" class="grid"/>
+<line x1="50" y1="225" x2="670" y2="225" class="grid"/>
+<line x1="50" y1="176" x2="670" y2="176" class="grid"/>
+<line x1="50" y1="127" x2="670" y2="127" class="grid"/>
+<line x1="50" y1="78" x2="670" y2="78" class="grid"/>
+<line x1="50" y1="30" x2="670" y2="30" class="grid"/>
+
+<text x="12" y="229" class="chartText">0%</text>
+<text x="7" y="180" class="chartText">25%</text>
+<text x="7" y="131" class="chartText">50%</text>
+<text x="7" y="82" class="chartText">75%</text>
+<text x="7" y="34" class="chartText">100%</text>
+
+<polyline points="100,186 280,157 460,131 620,95"
+class="line"/>
+
+<g onclick="week(1)">
+<circle cx="100" cy="186" r="9" class="point"/>
+<text x="91" y="170" class="chartValue">20%</text>
+<text x="82" y="250" class="chartText">Week 1</text>
+</g>
+
+<g onclick="week(2)">
+<circle cx="280" cy="157" r="9" class="point"/>
+<text x="271" y="141" class="chartValue">35%</text>
+<text x="262" y="250" class="chartText">Week 2</text>
+</g>
+
+<g onclick="week(3)">
+<circle cx="460" cy="131" r="9" class="point"/>
+<text x="451" y="115" class="chartValue">48%</text>
+<text x="442" y="250" class="chartText">Week 3</text>
+</g>
+
+<g onclick="week(4)">
+<circle cx="620" cy="95" r="9" class="point"/>
+<text x="611" y="79" class="chartValue">67%</text>
+<text x="602" y="250" class="chartText">Week 4</text>
+</g>
+
+</svg>
+
+<div class="selected" id="weekText">
+Click a point 👆
+</div>
+</div>
+
+
+<h2 style="margin-top:30px">📖 Course Modules</h2>
+
+<div class="module">
+<div><b>1. HTML Basics</b><br>
+Webpage structure and elements.</div>
+<span class="status done">✓ Completed</span>
+</div>
+
+<div class="module">
+<div><b>2. CSS Fundamentals</b><br>
+Styling, layouts and design.</div>
+<span class="status done">✓ Completed</span>
+</div>
+
+<div class="module">
+<div><b>3. JavaScript Basics</b><br>
+Variables, functions and events.</div>
+<span class="status start">● Started</span>
+</div>
+
+<div class="module">
+<div><b>4. Responsive Web Design</b><br>
+Layouts for different screens.</div>
+<span class="status pending">Not Started</span>
+</div>
+
+<div class="module">
+<div><b>5. Web Accessibility</b><br>
+Making websites accessible.</div>
+<span class="status pending">Not Started</span>
+</div>
+
+<button class="btn" onclick="home()">← Return Home</button>
+
+</div>
+
+<footer>© 2026 StudySpace | Keep Learning 📚</footer>
+</div>
+
+
+<!-- NORMAL POPUP -->
+
+<div class="popup" id="popup">
+<h3 id="title">Message</h3>
+<p id="message"></p>
+<button class="btn" onclick="closePop()">Okay</button>
+</div>
+
+
+<!-- BUY DETAILS POPUP -->
+
+<div class="popup" id="buyPopup">
+
+<h3>🛒 Enroll in Course</h3>
+
+<p id="buyCourseName"></p>
+
+<form onsubmit="confirmBuy(event)">
+
+<input id="studentName"
+placeholder="Full Name" required>
+
+<input id="studentEmail"
+type="email"
+placeholder="Email Address" required>
+
+<input id="studentPhone"
+type="tel"
+placeholder="Phone Number"
+pattern="[0-9]{10}"
+required>
+
+<input id="college"
+placeholder="College Name" required>
+
+<select id="payment" required>
+<option value="">Select Payment Preference</option>
+<option>UPI</option>
+<option>Card</option>
+<option>Net Banking</option>
+</select>
+
+<button class="btn" type="submit">
+Continue →
+</button>
+
+<button class="btn cancel"
+type="button"
+onclick="closeBuy()">
+Cancel
+</button>
+
+</form>
+</div>
+
+
+<!-- SUCCESS POPUP -->
+
+<div class="popup" id="successPopup">
+
+<h3>🎉 Course Added!</h3>
+
+<p id="successText"></p>
+
+<button class="btn" onclick="closeSuccess()">
+Awesome!
+</button>
+
+</div>
+
+
+<script>
+
+let selectedCourse="";
+let selectedPrice="";
+
+function openCourse(){
+homePage.style.display="none";
+coursePage.style.display="block";
+window.scrollTo(0,0);
+
+setTimeout(()=>{
+b1.style.height="210px";
+b2.style.height="210px";
+b3.style.height="105px";
+},100);
+}
+
+function home(){
+coursePage.style.display="none";
+homePage.style.display="block";
+window.scrollTo(0,0);
+}
+
+function pop(t,m){
+title.innerText=t;
+message.innerText=m;
+popup.style.display="block";
+}
+
+function closePop(){
+popup.style.display="none";
+}
+
+function send(e){
+e.preventDefault();
+pop("Message Sent! ✓",
+"Thank you! Your message has been successfully sent.");
+e.target.reset();
+}
+
+
+/* BUY COURSE */
+
+function buy(course,price){
+
+selectedCourse=course;
+selectedPrice=price;
+
+buyCourseName.innerText=
+course+" — "+price;
+
+buyPopup.style.display="block";
+}
+
+function confirmBuy(e){
+
+e.preventDefault();
+
+let name=document.getElementById("studentName").value;
+
+buyPopup.style.display="none";
+
+successText.innerText=
+"Congratulations "+name+"! 🎉 Your request for "+
+selectedCourse+" ("+selectedPrice+
+") has been successfully received.";
+
+successPopup.style.display="block";
+
+e.target.reset();
+}
+
+function closeBuy(){
+buyPopup.style.display="none";
+}
+
+function closeSuccess(){
+successPopup.style.display="none";
+}
+
+
+/* BAR GRAPH */
+
+function bar(n){
+
+let text=["",
+"HTML Basics — 100% complete! Foundation finished 🎉",
+"CSS Fundamentals — 100% complete! Styling mastered 🎨",
+"JavaScript — 50% complete! Keep practicing ⚡",
+"Responsive Design — Not started yet.",
+"Accessibility — Not started yet."
+];
+
+barText.innerText=text[n];
+
+document.querySelectorAll(".bar")
+.forEach(x=>x.classList.remove("active"));
+
+document.getElementById("b"+n)
+.classList.add("active");
+}
+
+
+/* LINE GRAPH */
+
+function week(n){
+
+let text=["",
+"Week 1 — 20%: You started your foundation.",
+"Week 2 — 35%: HTML progress is growing.",
+"Week 3 — 48%: CSS progress is growing.",
+"Week 4 — 67%: JavaScript has started!"
+];
+
+weekText.innerText=text[n];
+
+document.querySelectorAll(".point")
+.forEach(x=>x.classList.remove("active"));
+
+document.querySelectorAll(".point")[n-1]
+.classList.add("active");
+}
+
+</script>
+
+</body>
+</html>
+```
+
